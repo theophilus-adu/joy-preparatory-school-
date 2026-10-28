@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #ffdc4d;
+  color: #0c0b0a;
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .input {
+    @apply block w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 transition focus:border-ink-900 focus:outline-none focus:ring-4 focus:ring-gold-300/40 disabled:bg-ink-50 disabled:text-ink-500;
+  }
+  .label {
+    @apply mb-1.5 block text-[13px] font-semibold text-ink-700;
+  }
+  .th {
+    @apply whitespace-nowrap px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-ink-500;
+  }
+  .td {
+    @apply whitespace-nowrap px-4 py-3.5 text-sm text-ink-700;
+  }
+  .link {
+    @apply font-semibold text-ink-900 underline decoration-gold-400 decoration-2 underline-offset-4 transition hover:decoration-ink-900;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  /* When a dialog (e.g. a receipt) is open, print only its content */
+  body:has([role='dialog']) main > :not([role='dialog']) {
+    display: none !important;
+  }
+  [role='dialog'] {
+    position: static !important;
+  }
+  [role='dialog'] > .absolute,
+  [role='dialog'] [data-dialog-chrome] {
+    display: none !important;
+  }
+  [role='dialog'] > div {
+    box-shadow: none !important;
+    max-height: none !important;
+  }
+}

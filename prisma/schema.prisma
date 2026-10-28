@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  email       String?   @unique
+  phone       String?   @unique
+  password    String
+  firstName   String
+  lastName    String
+  roles       UserRole[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  staff       Staff?
+  parent      Parent?
+}
+
+model Role {
+  id    String     @id @default(uuid())
+  name  String     @unique
+  label String
+  users UserRole[]
+}
+
+model Permission {
+  id    String @id @default(uuid())
+  name  String @unique
+  label String
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  role   Role   @relation(fields: [roleId], references: [id])
+  roleId String
+}
+
+model School {
+  id           String   @id @default(uuid())
+  name         String
+  logo         String?
+  motto        String?
+  address      String?
+  phone        String?
+  email        String?
+  website      String?
+  registration String?
+  headmasterId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AcademicYear {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(false)
+  terms     Term[]
+  enrollments Enrollment[]
+}
+
+model Term {
+  id           String   @id @default(uuid())
+  name         String
+  startDate    DateTime
+  endDate      DateTime
+  academicYear AcademicYear @relation(fields:[academicYearId], references:[id])
+  academicYearId String
+  isActive     Boolean @default(false)
+}
+
+model Class {
+  id        String  @id @default(uuid())
+  name      String
+  level     String
+  sections  Section[]
+}
+
+model Section {
+  id       String  @id @default(uuid())
+  name     String
+  classId  String
+  classRef Class   @relation(fields:[classId], references:[id])
+  enrollments Enrollment[]
+}
+
+model Subject {
+  id         String @id @default(uuid())
+  name       String
+  code       String @unique
+  category   String?
+  maxMarks   Int    @default(100)
+  passMark   Int    @default(40)
+}
+
+model House {
+  id   String @id @default(uuid())
+  name String @unique
+  students Student[]
+}
+
+model Student {
+  id         String   @id @default(uuid())
+  studentId  String   @unique
+  firstName  String
+  lastName   String
+  dob        DateTime
+  gender     String
+  photo      String?
+  houseId    String?
+  house      House?   @relation(fields:[houseId], references:[id])
+  enrollments Enrollment[]
+}
+
+model Parent {
+  id        String @id @default(uuid())
+  userId    String @unique
+  user      User   @relation(fields:[userId], references:[id])
+  enrollments Enrollment[]
+}
+
+model Enrollment {
+  id            String   @id @default(uuid())
+  student       Student  @relation(fields:[studentId], references:[id])
+  studentId     String
+  section       Section? @relation(fields:[sectionId], references:[id])
+  sectionId     String?
+  parent        Parent?  @relation(fields:[parentId], references:[id])
+  parentId      String?
+  academicYear  AcademicYear @relation(fields:[academicYearId], references:[id])
+  academicYearId String
+  status        String   @default("enrolled")
+}
+
+model Attendance {
+  id           String   @id @default(uuid())
+  studentId    String
+  date         DateTime
+  status       String
+  recordedById String?
+  academicYearId String
+  termId       String
+  createdAt    DateTime @default(now())
+  @@unique([studentId, date])
+}
+
+model Staff {
+  id         String @id @default(uuid())
+  userId     String @unique
+  user       User   @relation(fields:[userId], references:[id])
+  staffId    String @unique
+  position   String
+  department String?
+}
+
+model FeeStructure {
+  id        String @id @default(uuid())
+  name      String
+  classId   String?
+  academicYearId String
+}
+
+model Invoice {
+  id        String @id @default(uuid())
+  invoiceNo String @unique
+  studentId String
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id         String @id @default(uuid())
+  invoiceId  String
+  amount     Float
+  method     String
+  status     String
+  createdAt  DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  action     String
+  entity     String
+  entityId   String?
+  before     Json?
+  after      Json?
+  createdAt  DateTime @default(now())
+}
